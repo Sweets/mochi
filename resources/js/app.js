@@ -2,12 +2,16 @@
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';
+import axios from 'axios';
 
 Vue.use(VueRouter);
 
 import App from '../views/App.vue';
 import Index from '../views/Index.vue';
+
+import Thread from '../views/Thread.vue';
 import Post from '../views/Post.vue';
+import Profile from '../views/Profile.vue';
 
 const router = new VueRouter({
 	mode: 'history',
@@ -17,16 +21,27 @@ const router = new VueRouter({
 			name: 'index',
 			component: Index
 		},
+
+		{
+			path: '/user/:id',
+			name: 'profile',
+			component: Profile
+		},
+		{
+			path: '/thread/:id',
+			name: 'thread',
+			component: Thread
+		},
 		{
 			path: '/post/:id',
 			name: 'post',
 			component: Post
-		}
+		},
 	]
 });
 
 const app = new Vue({
-	el: '#app',
+	el: '#vue',
 	components:  { App },
 	router
 });
