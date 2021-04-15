@@ -31,13 +31,15 @@ class CategoryController extends Controller
 
 	public static function get($id)
 	{
-		$category = null;
+		$category = Cache::get("category_{$id}", function() use ($id) {
+			return Category::find($id);
+		});
 
-		$from_cache = Cache::get("category_{$id}");
-		if ($from_cache)
-			$category = json_decode($from_cache);
-		else
-			$category = Category::find($id);
+		if (!$category)
+			return null;
+
+		if (gettype($category) == 'string')
+			$category = (new Category)->forceFill(json_decode($category, $array = true));
 
 		if ($category->last_post)
 			$category->last_post = PostController::get($category->last_post);

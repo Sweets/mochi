@@ -32,11 +32,18 @@ class UserController extends Controller
 
 	public static function get($id = -1)
 	{
-		if ($id)
-		{
-			return Cache::get("user_{$id}", function() {
-				return User::find($id);
-			});
-		}
+		$user = Cache::get("user_{$id}", function() use ($id) {
+			return User::find($id);
+		});
+
+		if (!$user) // No user found
+			return null;
+
+		if (gettype($user) == 'string') // forceFill JSON
+			$user = (new User)->forceFill(json_decode($user, $array = true));
+
+		$user->registered_at_ = $user->registered->diffForHumans();
+
+		return $user;
 	}
 }

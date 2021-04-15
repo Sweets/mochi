@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 use App\Models\Category;
 use App\Models\Post;
-use App\Models\User;
+use App\Http\Controllers\UserController;
 
 class PostController extends Controller
 {
@@ -47,15 +48,20 @@ class PostController extends Controller
 
 	public static function get($id)
 	{
-		$post = null;
-		$from_cache = Cache::get("post_{$id}");
+		$post = Cache::get("post_{$id}", function() use ($id) {
+			return Post::find($id);
+		});
 
-		if ($from_cache)
-			$post = json_decode($from_cache);
-		else
-			$post = Post::find($id);
+		if (!$post)
+			return null;
 
-		$post->owning_user = User::find($post->owning_user);
+		if (gettype($post) == 'string')
+			$post = (new Post)->forceFill(json_decode($post, $array = true));
+
+		$post->created = $post->created_at->diffForHumans();
+		$post->updated = $post->updated_at->diffForHumans();
+
+		$post->owning_user = UserController::get($post->owning_user);
 
 		return $post;
 	}
